@@ -1,10 +1,10 @@
 
 """
     Search the metacritic site for all wanted games
-    TODO: Save immediately as a dataframe - saving space and time
 """
 
 from selenium import webdriver
+import pandas as pd
 
 
 class WebWorks:
@@ -13,7 +13,14 @@ class WebWorks:
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
 
-        self.games = []
+        self.columns = [
+            'Title',
+            'Critic score',
+            'User score',
+            'Release date',
+            'Metacritic link'
+        ]
+        self.games = pd.DataFrame(columns=self.columns)
         self.driver = webdriver.Chrome(r'%s\chromedriver_win32\chromedriver.exe' % str(path.dirname(path.realpath(__file__))),
                                        options=options)
         if start_page_url != '':
@@ -34,21 +41,21 @@ class WebWorks:
                 for all_info in grandparent_element.find_elements_by_tag_name('div'):
                     temporary_results.append(all_info.text)
                 if 'tbd' not in str(temporary_results[3].splitlines()[0]):
-                    self.games.append([
-                        temporary_results[0],
-                        temporary_results[2],
-                        float(str(temporary_results[3].splitlines()[0])[6:]),
-                        temporary_results[3].splitlines()[1],
-                        str(web_element.get_attribute("href"))
-                    ])
+                    self.games = self.games.append({
+                        str(self.columns[0]): str(temporary_results[0]),
+                        str(self.columns[1]): int(temporary_results[2]),
+                        str(self.columns[2]): float(str(temporary_results[3].splitlines()[0])[6:]),
+                        str(self.columns[3]): temporary_results[3].splitlines()[1],     # TODO: change this to another type
+                        str(self.columns[4]): str(web_element.get_attribute("href"))
+                    }, ignore_index=True)
                 else:
-                    self.games.append([
-                        temporary_results[0],
-                        temporary_results[2],
-                        float(0.0),
-                        temporary_results[3].splitlines()[1],
-                        str(web_element.get_attribute("href"))
-                    ])
+                    self.games = self.games.append({
+                        str(self.columns[0]): str(temporary_results[0]),
+                        str(self.columns[1]): int(temporary_results[2]),
+                        str(self.columns[2]): float(0.0),
+                        str(self.columns[3]): temporary_results[3].splitlines()[1],
+                        str(self.columns[4]): str(web_element.get_attribute("href"))
+                    }, ignore_index=True)
 
     def go_to_url(self, web_page_url: str) -> None:
         self.driver.get(web_page_url)
@@ -66,15 +73,13 @@ class WebWorks:
         return int(pages_count)
 
     def print_all_games(self) -> None:
-        print('\n' + ('-' * 50))
-        for index, game in enumerate(self.games):
-            print('%i %s' % (index + 1, game))
-            print('-' * 50)
+        print(self.games)
 
     # example: https://www.metacritic.com/browse/games/score/metascore/90day/all/filtered?page=0
     def find_all_games(self, the_page: str) -> None:
         pages = self.get_pages_number()
-        for page_number in range(pages):
+        # for page_number in range(pages):
+        for page_number in range(1):    # TODO: remember to fix this debug
             page = '%s%i' % (the_page[:-1], page_number)
             self.go_to_url(page)
             self.get_all_games_from_site()
