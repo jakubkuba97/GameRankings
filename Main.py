@@ -1,6 +1,6 @@
 
 """
-    Search the metacritic site for all wanted games
+    Search the metacritic site for all games
 """
 
 from selenium import webdriver
@@ -13,6 +13,7 @@ class WebWorks:
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
 
+        self.debug = False
         self.columns = [
             'Title',
             'Critic score',
@@ -45,7 +46,7 @@ class WebWorks:
                         str(self.columns[0]): str(temporary_results[0]),
                         str(self.columns[1]): int(temporary_results[2]),
                         str(self.columns[2]): float(str(temporary_results[3].splitlines()[0])[6:]),
-                        str(self.columns[3]): temporary_results[3].splitlines()[1],     # TODO: change this to another type
+                        str(self.columns[3]): self.convert_to_date(temporary_results[3].splitlines()[len(temporary_results[3].splitlines()) - 1]),
                         str(self.columns[4]): str(web_element.get_attribute("href"))
                     }, ignore_index=True)
                 else:
@@ -53,7 +54,7 @@ class WebWorks:
                         str(self.columns[0]): str(temporary_results[0]),
                         str(self.columns[1]): int(temporary_results[2]),
                         str(self.columns[2]): float(0.0),
-                        str(self.columns[3]): temporary_results[3].splitlines()[1],
+                        str(self.columns[3]): self.convert_to_date(temporary_results[3].splitlines()[len(temporary_results[3].splitlines()) - 1]),
                         str(self.columns[4]): str(web_element.get_attribute("href"))
                     }, ignore_index=True)
 
@@ -75,14 +76,54 @@ class WebWorks:
     def print_all_games(self) -> None:
         print(self.games)
 
+    @staticmethod
+    def convert_to_date(word: str) -> pd.Timestamp:
+        day = int(word[word.index(',') - 2:word.index(',')])
+        month = word[:word.index(',') - 2]
+        if 'Jan' in month:
+            month = 1
+        elif 'Feb' in month:
+            month = 2
+        elif 'Mar' in month:
+            month = 3
+        elif 'Apr' in month:
+            month = 4
+        elif 'May' in month:
+            month = 5
+        elif 'Jun' in month:
+            month = 6
+        elif 'Jul' in month:
+            month = 7
+        elif 'Aug' in month:
+            month = 8
+        elif 'Sep' in month:
+            month = 9
+        elif 'Oct' in month:
+            month = 10
+        elif 'Nov' in month:
+            month = 11
+        elif 'Dec' in month:
+            month = 12
+        else:
+            print('\n\t--- Wrong conversion of a month! Unknown month case! ---\n')
+            month = 0
+        year = int(word[word.index(',') + 1:])
+        return pd.Timestamp(year, month, day)
+
     # example: https://www.metacritic.com/browse/games/score/metascore/90day/all/filtered?page=0
     def find_all_games(self, the_page: str) -> None:
-        pages = self.get_pages_number()
-        # for page_number in range(pages):
-        for page_number in range(1):    # TODO: remember to fix this debug
-            page = '%s%i' % (the_page[:-1], page_number)
-            self.go_to_url(page)
-            self.get_all_games_from_site()
+        if not self.debug:
+            pages = self.get_pages_number()
+            for page_number in range(pages):
+                page = '%s%i' % (the_page[:-1], page_number)
+                self.go_to_url(page)
+                self.get_all_games_from_site()
+        else:
+            for page_number in range(1):
+                page = '%s%i' % (the_page[:-1], page_number)
+                self.go_to_url(page)
+                self.get_all_games_from_site()
+        print()
 
 
 if __name__ == '__main__':
