@@ -15,11 +15,11 @@ class WebWorks:
 
         self.debug = False
         self.columns = [
-            'Title',
-            'Critic score',
-            'User score',
-            'Release date',
-            'Metacritic link'
+            'Title',            # 0
+            'Critic score',     # 1
+            'User score',       # 2
+            'Release date',     # 3
+            'Metacritic link'   # 4
         ]
         self.games = pd.DataFrame(columns=self.columns)
         self.driver = webdriver.Chrome(r'%s\chromedriver_win32\chromedriver.exe' % str(path.dirname(path.realpath(__file__))),
