@@ -15,6 +15,6 @@ if __name__ == '__main__':
     browser.debug = True
     browser.find_all_games(main_page)
 
-    Graphs().above_80_in_all_days(browser.games)
+    Graphs().critic_score_pie_chart(browser.games)
 
     browser.close_connection()
