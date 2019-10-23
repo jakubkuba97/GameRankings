@@ -32,25 +32,25 @@ class Graphs:
         valid_columns = []      # get out all with value of 0
         for index, row in results.iterrows():
             if row['90-100'] > 0:
-                valid_columns.append('Score of 90-100')
+                valid_columns.append('90-100')
             if row['80-89'] > 0:
-                valid_columns.append('Score of 80-89')
+                valid_columns.append('80-89')
             if row['70-79'] > 0:
-                valid_columns.append('Score of 70-79')
+                valid_columns.append('70-79')
             if row['60-69'] > 0:
-                valid_columns.append('Score of 60-69')
+                valid_columns.append('60-69')
             if row['50-59'] > 0:
-                valid_columns.append('Score of 50-59')
+                valid_columns.append('50-59')
             if row['40-49'] > 0:
-                valid_columns.append('Score of 40-49')
+                valid_columns.append('40-49')
             if row['30-39'] > 0:
-                valid_columns.append('Score of 30-39')
+                valid_columns.append('30-39')
             if row['20-29'] > 0:
-                valid_columns.append('Score of 20-29')
+                valid_columns.append('20-29')
             if row['10-19'] > 0:
-                valid_columns.append('Score of 10-19')
+                valid_columns.append('10-19')
             if row['0-9'] > 0:
-                valid_columns.append('Score of 0-9')
+                valid_columns.append('0-9')
 
         valid_explode = []
         valid_values = []
