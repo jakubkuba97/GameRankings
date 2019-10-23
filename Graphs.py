@@ -12,6 +12,25 @@ class Graphs:
     def __init__(self) -> None:
         self.columns = WebWorks().columns
 
+    def show_all_graphs(self, df: pd.DataFrame) -> None:
+        ax1 = self.above_80_in_all_days(df, show_as_image=False)
+        ax2 = self.critic_score_pie_chart(df, show_as_image=False)
+        ax3 = self.average_user_score_by_console(df, show_as_image=False)
+
+        print('Drawing all graphs...')
+        plt.show()
+
+    def average_user_score_by_console(self, df: pd.DataFrame, show_as_image: bool = True) -> pd.DataFrame.plot:
+        df['Console'] = df[self.columns[0]].apply(lambda x: x[x.index('(') + 1:x.index(')')])
+        df['Valid scores'] = df[self.columns[2]].apply(lambda x: x if x > 0 else pd.NaT)      # ignore all 0.0 - tbd
+        df = df.dropna()
+        results = df.groupby('Console').agg({self.columns[0]: 'count', self.columns[2]: 'sum'})
+        results['Average'] = 0.0
+        for index, row in results.iterrows():
+            row['Average'] = float(row[self.columns[2]]) / float(row[self.columns[0]])
+        True
+        # TODO: finish this function
+
     def critic_score_pie_chart(self, df: pd.DataFrame, show_as_image: bool = True) -> pd.DataFrame.plot:
         results = pd.DataFrame(columns=['90-100', '80-89', '70-79', '60-69', '50-59', '40-49', '30-39', '20-29', '10-19', '0-9', 'No.', 'All'])
         results['90-100'] = df[self.columns[1]].apply(lambda x: 1 if x >= 90 else 0)
