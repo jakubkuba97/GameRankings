@@ -29,34 +29,67 @@ class Graphs:
         results = results.groupby('No.').agg({'90-100': 'sum', '80-89': 'sum', '70-79': 'sum', '60-69': 'sum', '50-59': 'sum',
                                               '40-49': 'sum', '30-39': 'sum', '20-29': 'sum', '10-19': 'sum', '0-9': 'sum', 'All': 'count'})
 
-        # TODO: fix this graph
+        valid_columns = []      # get out all with value of 0
+        for index, row in results.iterrows():
+            if row['90-100'] > 0:
+                valid_columns.append('Score of 90-100')
+            if row['80-89'] > 0:
+                valid_columns.append('Score of 80-89')
+            if row['70-79'] > 0:
+                valid_columns.append('Score of 70-79')
+            if row['60-69'] > 0:
+                valid_columns.append('Score of 60-69')
+            if row['50-59'] > 0:
+                valid_columns.append('Score of 50-59')
+            if row['40-49'] > 0:
+                valid_columns.append('Score of 40-49')
+            if row['30-39'] > 0:
+                valid_columns.append('Score of 30-39')
+            if row['20-29'] > 0:
+                valid_columns.append('Score of 20-29')
+            if row['10-19'] > 0:
+                valid_columns.append('Score of 10-19')
+            if row['0-9'] > 0:
+                valid_columns.append('Score of 0-9')
+
+        valid_explode = []
+        valid_values = []
+        for column in valid_columns:
+            valid_values.append(results.iloc[0, list(results.columns.values).index(column)])
+            if len(valid_explode) == 0:
+                valid_explode.append(0.12)
+            elif len(valid_explode) == 1:
+                valid_explode.append(0.06)
+            else:
+                valid_explode.append(0)
+
         ax = plt.pie(
-            results.iloc[0, :10],
-            labels=['90-100', '80-89', '70-79', '60-69', '50-59', '40-49', '30-39', '20-29', '10-19', '0-9'],
-            autopct='%1.1f%%'
+            valid_values,
+            labels=valid_columns,
+            autopct='%1.1f%%',
+            shadow=True,
+            startangle=120,
+            explode=valid_explode
         )
+        plt.title('Percentage of all critic scores (grouped)', pad=2)
 
         if show_as_image:
             print('Drawing a graph...')
             plt.show()
         return ax
 
-    def above_80_in_all_days(self, df: pd.DataFrame, compare_to_all: bool = True, show_as_image: bool = True) -> pd.DataFrame.plot:
+    def above_80_in_all_days(self, df: pd.DataFrame, show_as_image: bool = True) -> pd.DataFrame.plot:
         df['Greater than 80'] = df[self.columns[1]].apply(lambda x: 1 if x > 80 else 0)
-        if compare_to_all:
-            df['All'] = df[self.columns[1]].apply(lambda x: 1)
-            df = df.groupby(self.columns[3], as_index=False).agg({'Greater than 80': 'sum', 'All': 'sum'})
-        else:
-            df = df.groupby(self.columns[3], as_index=False).agg({'Greater than 80': 'sum'})
+        df['All'] = df[self.columns[1]].apply(lambda x: 1)
+        df = df.groupby(self.columns[3], as_index=False).agg({'Greater than 80': 'sum', 'All': 'sum'})
         df = df.sort_values(by=self.columns[3], ascending=True)
         df[self.columns[3]] = df[self.columns[3]].apply(lambda x: str(x)[:10])
 
         _, ax = plt.subplots()
-        if compare_to_all:
-            ax = df.plot(kind='bar', x=self.columns[3], ax=ax,
-                         y='All', width=0.85, color='red')
+        ax = df.plot(kind='bar', x=self.columns[3], ax=ax,
+                     y='All', width=0.85, color='red')
         ax = df.plot(kind='bar', x=self.columns[3], ax=ax, title='Games with critic scores of above 80 per days',
-                     y='Greater than 80', width=0.85, color=('green' if compare_to_all else 'orange'))
+                     y='Greater than 80', width=0.85, color='green')
         ax.set_xlabel('Date')
         ax.set_ylabel('Number of games')
         ax.set_xticklabels(ax.get_xticklabels(), rotation=50, horizontalalignment='right')
