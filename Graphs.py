@@ -32,7 +32,7 @@ class Graphs:
         results['Average'] = valid_average
 
         _, ax = plt.subplots()
-        ax = results.plot(kind='bar', y='Average', title='Average user score (by console)', color='orange')
+        ax = results.plot(kind='bar', y='Average', title='Average user score (by console)', color='orange', ax=ax)
         ax.set_xlabel('Console')
         ax.set_ylabel('Average')
         ax.set_xticklabels(ax.get_xticklabels(), rotation=0)
