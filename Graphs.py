@@ -13,9 +13,9 @@ class Graphs:
         self.columns = WebWorks().columns
 
     def show_all_graphs(self, df: pd.DataFrame) -> None:
-        ax1 = self.above_80_in_all_days(df, show_as_image=False)
-        ax2 = self.critic_score_pie_chart(df, show_as_image=False)
-        ax3 = self.average_user_score_by_console(df, show_as_image=False)
+        self.above_80_in_all_days(df, show_as_image=False)
+        self.critic_score_pie_chart(df, show_as_image=False)
+        self.average_user_score_by_console(df, show_as_image=False)
 
         print('Drawing all graphs...')
         plt.show()
@@ -26,10 +26,22 @@ class Graphs:
         df = df.dropna()
         results = df.groupby('Console').agg({self.columns[0]: 'count', self.columns[2]: 'sum'})
         results['Average'] = 0.0
+        valid_average = []
         for index, row in results.iterrows():
-            row['Average'] = float(row[self.columns[2]]) / float(row[self.columns[0]])
-        True
-        # TODO: finish this function
+            valid_average.append(float(row[self.columns[2]]) / float(row[self.columns[0]]))
+        results['Average'] = valid_average
+
+        _, ax = plt.subplots()
+        ax = results.plot(kind='bar', y='Average', title='Average user score (by console)', color='orange')
+        ax.set_xlabel('Console')
+        ax.set_ylabel('Average')
+        ax.set_xticklabels(ax.get_xticklabels(), rotation=0)
+        ax.set_ylim(0, 10)
+
+        if show_as_image:
+            print('Drawing a graph...')
+            plt.show()
+        return ax
 
     def critic_score_pie_chart(self, df: pd.DataFrame, show_as_image: bool = True) -> pd.DataFrame.plot:
         results = pd.DataFrame(columns=['90-100', '80-89', '70-79', '60-69', '50-59', '40-49', '30-39', '20-29', '10-19', '0-9', 'No.', 'All'])
@@ -82,6 +94,7 @@ class Graphs:
             else:
                 valid_explode.append(0)
 
+        _, ax = plt.subplots()
         ax = plt.pie(
             valid_values,
             labels=valid_columns,

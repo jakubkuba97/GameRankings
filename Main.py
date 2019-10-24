@@ -12,9 +12,9 @@ if __name__ == '__main__':
 
     main_page = 'https://www.metacritic.com/browse/games/score/metascore/90day/all/filtered?page=0'
     browser = WebWorks(main_page)
-    browser.debug = True
+    # browser.debug = True
     browser.find_all_games(main_page)
 
-    Graphs().average_user_score_by_console(browser.games)
+    Graphs().show_all_graphs(browser.games)
 
     browser.close_connection()
