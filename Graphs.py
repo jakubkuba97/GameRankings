@@ -6,6 +6,7 @@
 from WebWorks import WebWorks
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib_venn import venn3
 
 
 class Graphs:
@@ -16,9 +17,36 @@ class Graphs:
         self.above_80_in_all_days(df, show_as_image=False)
         self.critic_score_pie_chart(df, show_as_image=False)
         self.average_user_score_by_console(df, show_as_image=False)
+        self.critic_80_user_7_this_month(df, show_as_image=False)
 
         print('Drawing all graphs...')
         plt.show()
+
+    def critic_80_user_7_this_month(self, df: pd.DataFrame, show_as_image: bool = True) -> pd.DataFrame.plot:
+        df['Critic_80'] = df[self.columns[1]].apply(lambda x: 1 if x >= 80 else 0)
+        df['User_7'] = df[self.columns[2]].apply(lambda x: 1 if x >= 7.0 else 0)
+        df['This_month'] = df[self.columns[3]].apply(lambda x: 1 if x.month == pd.datetime.now().month else 0)
+
+        critic_80 = []
+        user_7 = []
+        this_month = []
+        for index, row in df.iterrows():
+            if row['Critic_80'] == 1:
+                critic_80.append(row[self.columns[0]])
+            if row['User_7'] == 1:
+                user_7.append(row[self.columns[0]])
+            if row['This_month'] == 1:
+                this_month.append(row[self.columns[0]])
+
+        _, ax = plt.subplots()
+        ax = venn3([set(critic_80), set(user_7), set(this_month)],
+                   set_labels=('Critic scores of 80 and above', 'User scores of 7 and above', 'Games from this month'))
+        plt.title('Number of commons between good critic scores, good user scores and from this month', pad=5)
+
+        if show_as_image:
+            print('Drawing a graph...')
+            plt.show()
+        return ax
 
     def average_user_score_by_console(self, df: pd.DataFrame, show_as_image: bool = True) -> pd.DataFrame.plot:
         df['Console'] = df[self.columns[0]].apply(lambda x: x[x.index('(') + 1:x.index(')')])
