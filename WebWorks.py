@@ -10,6 +10,7 @@ import pandas as pd
 class WebWorks:
     def __init__(self, start_page_url: str = '') -> None:
         from os import path
+        import sys
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
 
@@ -22,8 +23,14 @@ class WebWorks:
             'Metacritic link'   # 4
         ]
         self.games = pd.DataFrame(columns=self.columns)
-        self.driver = webdriver.Chrome(r'%s\chromedriver_win32\chromedriver.exe' % str(path.dirname(path.realpath(__file__))),
-                                       options=options)
+        self.driver = None
+        # pyinstaller --hidden-import matplotlib-venn -F Main.py
+        if getattr(sys, 'frozen', False):
+            self.driver = webdriver.Chrome(r'%s\chromedriver_win32\chromedriver.exe' % path.dirname(sys.executable),
+                                           options=options)
+        elif __file__:
+            self.driver = webdriver.Chrome(r'%s\chromedriver_win32\chromedriver.exe' % str(path.dirname(path.realpath(__file__))),
+                                           options=options)
         if start_page_url != '':
             self.go_to_url(start_page_url)
             print()
@@ -61,7 +68,7 @@ class WebWorks:
     def go_to_url(self, web_page_url: str) -> None:
         self.driver.get(web_page_url)
         self.driver.implicitly_wait(2)
-        print('Connected to page: %s' % self.driver.title)
+        print('\tConnected to page: %s' % self.driver.title)
 
     def close_connection(self) -> None:
         self.driver.close()

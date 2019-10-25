@@ -19,7 +19,7 @@ class Graphs:
         self.average_user_score_by_console(df, show_as_image=False)
         self.critic_80_user_7_this_month(df, show_as_image=False)
 
-        print('Drawing all graphs...')
+        print('\tDrawing all graphs...')
         plt.show()
 
     def critic_80_user_7_this_month(self, df: pd.DataFrame, show_as_image: bool = True) -> pd.DataFrame.plot:
